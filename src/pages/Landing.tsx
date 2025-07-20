@@ -142,30 +142,101 @@ const Landing = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
+            <Link to="/dashboard">
               <Card 
-                key={index}
                 className={`group cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 border-border/50 ${
-                  activeFeature === index ? 'border-primary/40 bg-primary/5' : ''
+                  activeFeature === 0 ? 'border-primary/40 bg-primary/5' : ''
                 }`}
-                onMouseEnter={() => setActiveFeature(index)}
+                onMouseEnter={() => setActiveFeature(0)}
               >
                 <CardHeader className="pb-4">
                   <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors ${
-                    activeFeature === index 
+                    activeFeature === 0 
                       ? 'bg-gradient-to-br from-primary to-primary-glow text-white' 
                       : 'bg-muted group-hover:bg-primary/10'
                   }`}>
-                    <feature.icon className="w-6 h-6" />
+                    <BarChart3 className="w-6 h-6" />
                   </div>
-                  <CardTitle className="text-lg">{feature.title}</CardTitle>
+                  <CardTitle className="text-lg">Market Intelligence Dashboard</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <CardDescription className="mb-3">{feature.description}</CardDescription>
-                  <div className="text-sm text-primary font-medium">{feature.benefit}</div>
+                  <CardDescription className="mb-3">Real-time insights into global pharmaceutical trade flows, emerging trends, and market opportunities.</CardDescription>
+                  <div className="text-sm text-primary font-medium">Stay ahead of market shifts with comprehensive data visualization</div>
                 </CardContent>
               </Card>
-            ))}
+            </Link>
+
+            <Link to="/buyer-discovery">
+              <Card 
+                className={`group cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 border-border/50 ${
+                  activeFeature === 1 ? 'border-primary/40 bg-primary/5' : ''
+                }`}
+                onMouseEnter={() => setActiveFeature(1)}
+              >
+                <CardHeader className="pb-4">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors ${
+                    activeFeature === 1 
+                      ? 'bg-gradient-to-br from-primary to-primary-glow text-white' 
+                      : 'bg-muted group-hover:bg-primary/10'
+                  }`}>
+                    <Search className="w-6 h-6" />
+                  </div>
+                  <CardTitle className="text-lg">Buyer Discovery Engine</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <CardDescription className="mb-3">AI-powered prospect identification that finds the most relevant buyers for your pharmaceutical products.</CardDescription>
+                  <div className="text-sm text-primary font-medium">Reduce prospecting time from weeks to minutes</div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/contact-intelligence">
+              <Card 
+                className={`group cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 border-border/50 ${
+                  activeFeature === 2 ? 'border-primary/40 bg-primary/5' : ''
+                }`}
+                onMouseEnter={() => setActiveFeature(2)}
+              >
+                <CardHeader className="pb-4">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors ${
+                    activeFeature === 2 
+                      ? 'bg-gradient-to-br from-primary to-primary-glow text-white' 
+                      : 'bg-muted group-hover:bg-primary/10'
+                  }`}>
+                    <Users className="w-6 h-6" />
+                  </div>
+                  <CardTitle className="text-lg">Contact Intelligence</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <CardDescription className="mb-3">Automated discovery of key decision-makers and stakeholders within target pharmaceutical companies.</CardDescription>
+                  <div className="text-sm text-primary font-medium">Connect directly with the right people at the right companies</div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/compliance-monitoring">
+              <Card 
+                className={`group cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 border-border/50 ${
+                  activeFeature === 3 ? 'border-primary/40 bg-primary/5' : ''
+                }`}
+                onMouseEnter={() => setActiveFeature(3)}
+              >
+                <CardHeader className="pb-4">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors ${
+                    activeFeature === 3 
+                      ? 'bg-gradient-to-br from-primary to-primary-glow text-white' 
+                      : 'bg-muted group-hover:bg-primary/10'
+                  }`}>
+                    <Shield className="w-6 h-6" />
+                  </div>
+                  <CardTitle className="text-lg">Compliance Monitoring</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <CardDescription className="mb-3">Track regulatory status, licensing requirements, and compliance indicators across global markets.</CardDescription>
+                  <div className="text-sm text-primary font-medium">Ensure regulatory alignment before market entry</div>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
       </section>

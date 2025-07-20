@@ -1,12 +1,34 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { DashboardHeader } from "@/components/DashboardHeader";
+import { MetricsGrid } from "@/components/MetricsGrid";
+import { MarketFilters } from "@/components/MarketFilters";
+import { WorldMapPlaceholder } from "@/components/WorldMapPlaceholder";
+import { TopExportersTable } from "@/components/TopExportersTable";
+import { TrendChart } from "@/components/TrendChart";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <DashboardHeader />
+      
+      <main className="p-6 space-y-6">
+        {/* Market Filters */}
+        <MarketFilters />
+        
+        {/* Key Metrics */}
+        <MetricsGrid />
+        
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* World Map */}
+          <WorldMapPlaceholder />
+          
+          {/* Trend Chart */}
+          <TrendChart />
+        </div>
+        
+        {/* Top Exporters Table */}
+        <TopExportersTable />
+      </main>
     </div>
   );
 };

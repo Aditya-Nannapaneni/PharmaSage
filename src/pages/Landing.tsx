@@ -78,8 +78,7 @@ const Landing = () => {
             </div>
             
             <nav className="hidden md:flex items-center space-x-6">
-              <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">Features</a>
-              <a href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
+              <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">How it works?</a>
               <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
               <Link to="/dashboard">
                 <Button variant="outline" size="sm">View Dashboard</Button>
@@ -113,17 +112,13 @@ const Landing = () => {
               Discover global market opportunities, identify qualified buyers, and accelerate pharmaceutical business development with AI-powered intelligence.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/dashboard">
+            <div className="flex justify-center">
+              <a href="#features">
                 <Button size="lg" className="bg-gradient-to-r from-primary to-primary-glow hover:from-primary/90 hover:to-primary-glow/90 text-white shadow-lg hover:shadow-primary/25 transition-all duration-300">
                   <PlayCircle className="w-5 h-5 mr-2" />
-                  Launch InsightGrid
+                  How it works?
                 </Button>
-              </Link>
-              <Button variant="outline" size="lg" className="border-primary/20 hover:bg-primary/5">
-                <Globe className="w-5 h-5 mr-2" />
-                Explore Features
-              </Button>
+              </a>
             </div>
           </div>
         </div>

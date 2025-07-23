@@ -1,0 +1,43 @@
+# FastAPI and ASGI server
+fastapi>=0.103.0
+uvicorn>=0.23.0
+python-multipart>=0.0.6
+httpx>=0.24.1  # HTTP client for testing
+
+# Database
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.7
+alembic>=1.12.0
+
+# Environment and settings
+pydantic>=2.3.0
+pydantic-settings>=2.0.3
+python-dotenv>=1.0.0
+
+# Data processing
+pandas>=2.1.0
+numpy>=1.25.0
+
+# Export functionality
+openpyxl>=3.1.2
+xlsxwriter>=3.1.2
+
+# Redis cache
+redis>=5.0.0
+aioredis>=2.0.0
+
+# AWS SDK
+boto3>=1.28.0
+
+# AI/ML - Optional for MVP
+# anthropic>=0.5.0  # Commented out as it's optional for MVP
+spacy>=3.6.0
+
+# Utilities
+python-dateutil>=2.8.2
+email-validator>=2.0.0
+tenacity>=8.2.3
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.1

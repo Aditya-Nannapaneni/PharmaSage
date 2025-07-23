@@ -1,6 +1,6 @@
 # PharmaSage
 
-PharmaSage is a comprehensive pharmaceutical business intelligence platform that provides real-time insights into global pharmaceutical trade flows, buyer discovery, contact intelligence, and compliance monitoring.
+PharmaSage is a comprehensive pharmaceutical business intelligence platform that provides real-time insights into global pharmaceutical trade flows, buyer discovery, and contact intelligence.
 
 ## Table of Contents
 
@@ -11,10 +11,15 @@ PharmaSage is a comprehensive pharmaceutical business intelligence platform that
   - [Market Intelligence Dashboard](#market-intelligence-dashboard)
   - [Buyer Discovery Engine](#buyer-discovery-engine)
   - [Contact Intelligence](#contact-intelligence)
-  - [Compliance Monitoring](#compliance-monitoring)
 - [Component Architecture](#component-architecture)
+- [Backend Architecture](#backend-architecture)
+  - [Data Integration Layer](#data-integration-layer)
+  - [Core API Layer](#core-api-layer)
+  - [AI Integration Layer](#ai-integration-layer)
+  - [Database Strategy](#database-strategy)
 - [UI/UX Design Patterns](#uiux-design-patterns)
 - [Data Flow](#data-flow)
+- [Data Sources](#data-sources)
 - [Setup & Installation](#setup--installation)
 - [Development](#development)
 
@@ -26,7 +31,8 @@ PharmaSage is a next-generation pharmaceutical business intelligence platform de
 
 PharmaSage is built with modern web technologies:
 
-- **Frontend Framework**: React 18 with TypeScript
+### Frontend
+- **Framework**: React 18 with TypeScript
 - **Build Tool**: Vite
 - **Routing**: React Router v6
 - **UI Components**: Shadcn UI (based on Radix UI primitives)
@@ -38,12 +44,23 @@ PharmaSage is built with modern web technologies:
 - **Date Handling**: date-fns
 - **Toast Notifications**: Sonner
 
+### Backend
+- **API Framework**: FastAPI (Python)
+- **Database**: PostgreSQL with TimescaleDB extension
+- **Data Processing**: Apache Airflow for ETL pipelines
+- **Storage**: AWS S3 for data lake
+- **Caching**: Redis (optional)
+- **AI/ML**: Anthropic Claude API for guidance generation
+- **Authentication**: OAuth 2.0 with JWT
+- **Containerization**: Docker
+- **Deployment**: AWS ECS/Fargate
+
 ## Project Structure
 
 ```
 PharmaSage/
 ├── public/                  # Static assets
-├── src/
+├── src/                     # Frontend source code
 │   ├── components/          # Reusable components
 │   │   ├── ui/              # UI component library (Shadcn UI)
 │   │   ├── DashboardHeader.tsx
@@ -59,7 +76,6 @@ PharmaSage/
 │   │   └── utils.ts
 │   ├── pages/               # Application pages
 │   │   ├── BuyerDiscovery.tsx
-│   │   ├── ComplianceMonitoring.tsx
 │   │   ├── ContactIntelligence.tsx
 │   │   ├── Index.tsx        # Main dashboard
 │   │   ├── Landing.tsx      # Landing/marketing page
@@ -69,6 +85,41 @@ PharmaSage/
 │   ├── index.css            # Global styles
 │   ├── main.tsx             # Application entry point
 │   └── vite-env.d.ts        # Vite type definitions
+├── backend/                 # Backend source code
+│   ├── app/                 # FastAPI application
+│   │   ├── api/             # API routes
+│   │   │   ├── dashboard.py # Market trends endpoints
+│   │   │   ├── search.py    # Product/company search endpoints
+│   │   │   ├── match.py     # Prospect matching endpoints
+│   │   │   ├── contacts.py  # Contact endpoints
+│   │   │   ├── export.py    # Data export endpoints
+│   │   │   └── analytics.py # Usage tracking endpoints
+│   │   ├── core/            # Core application code
+│   │   │   ├── config.py    # Configuration settings
+│   │   │   ├── security.py  # Security utilities
+│   │   │   └── logging.py   # Logging configuration
+│   │   ├── db/              # Database related code
+│   │   │   ├── session.py   # Database session management
+│   │   │   ├── base.py      # Base model class
+│   │   │   └── init_db.py   # Database initialization
+│   │   ├── models/          # SQLAlchemy ORM models
+│   │   │   ├── company.py   # Company model
+│   │   │   ├── product.py   # Product model
+│   │   │   ├── transaction.py # Transaction model
+│   │   │   ├── license.py   # License model
+│   │   │   └── contact.py   # Contact model
+│   │   ├── schemas/         # Pydantic schemas
+│   │   ├── services/        # Business logic
+│   │   ├── utils/           # Utility functions
+│   │   └── main.py          # FastAPI application entry point
+│   ├── data_ingestion/      # Data ingestion pipelines
+│   │   ├── airflow/         # Airflow DAGs
+│   │   └── scripts/         # Data processing scripts
+│   └── tests/               # Backend tests
+├── alembic/                 # Database migrations
+├── docker/                  # Docker configuration
+│   ├── Dockerfile           # Dockerfile for the application
+│   └── docker-compose.yml   # Docker Compose configuration
 ├── .gitignore
 ├── bun.lockb                # Bun lockfile
 ├── components.json          # Shadcn UI configuration
@@ -132,21 +183,6 @@ Contact Intelligence provides automated discovery of key decision-makers and sta
 - View detailed contact information including email, phone, department, and interactions
 - Track relationship scores and recent activities
 
-### Compliance Monitoring
-
-Compliance Monitoring tracks regulatory status, licensing requirements, and compliance indicators across global markets.
-
-**Key Components:**
-- Compliance status dashboard for different regulations
-- Recent alerts for compliance issues
-- Compliance score trends and upcoming reviews
-
-**Functionality:**
-- Monitor compliance status for various regulations
-- Track compliance scores and progress
-- Receive alerts for compliance issues
-- View upcoming regulatory reviews
-
 ## Component Architecture
 
 PharmaSage follows a component-based architecture with:
@@ -162,6 +198,124 @@ PharmaSage follows a component-based architecture with:
 5. **Utility Functions**: Located in `src/lib/`, these provide helper functions for the application.
 
 The application uses React Router for navigation between pages, with routes defined in `App.tsx`.
+
+## Backend Architecture
+
+PharmaSage uses an integrated deployment approach for the MVP, where the FastAPI backend serves the React frontend directly. This simplifies deployment and development while maintaining a clear separation of concerns.
+
+### Data Integration Layer
+
+The data integration layer is responsible for collecting, processing, and storing data from various sources:
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  Raw Data Lake  │────▶│ Data Processing │────▶│ Structured Data │
+│  (S3 Buckets)   │     │  (ETL Pipeline) │     │  (PostgreSQL)   │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+```
+
+1. **Raw Data Lake (S3)**
+   - Store raw data from all sources in their original format
+   - Organize by source, data type, and ingestion date
+   - Implement lifecycle policies for cost optimization
+
+2. **ETL Pipeline (Apache Airflow)**
+   - Create DAGs for each data source with appropriate schedules
+   - Implement data validation, cleaning, and transformation
+   - Handle entity resolution across different sources (e.g., matching company names)
+
+3. **Structured Database (PostgreSQL)**
+   - Optimized schema for application queries
+   - Partitioning for large tables (transactions, contacts)
+   - Materialized views for common dashboard queries
+
+### Core API Layer
+
+The core API layer provides endpoints for the frontend to interact with the backend:
+
+```
+┌───────────────────────────────────────────────────────────┐
+│                     FastAPI Application                   │
+├───────────┬───────────┬───────────┬───────────┬───────────┤
+│ Dashboard │  Search   │  Matching │  Export   │ Analytics │
+│   API     │    API    │    API    │    API    │    API    │
+└───────────┴───────────┴───────────┴───────────┴───────────┘
+```
+
+Key components:
+
+1. **Dashboard API**
+   - Endpoints for market trends, top exporters, regional analysis
+   - Support for filtering by product type, geography, time period
+   - Aggregation logic for visualization data
+
+2. **Search API**
+   - Product and company search with autocomplete
+   - Fuzzy matching for names and synonyms
+   - Filtering by various attributes
+
+3. **Matching API**
+   - Core prospect discovery engine
+   - Algorithm to match input companies/products with potential buyers
+   - Scoring and ranking logic
+
+4. **Export API**
+   - CSV generation for search results and matches
+   - Background processing for large exports
+   - Secure download links
+
+5. **Analytics API**
+   - Event tracking for user actions
+   - Usage metrics collection
+   - Feature popularity analysis
+
+### AI Integration Layer
+
+The AI integration layer connects to Anthropic's Claude API for generating guidance and insights:
+
+```
+┌───────────────────┐     ┌───────────────────┐
+│  Business Logic   │────▶│  AI Orchestrator  │
+│     Services      │◀────│     Service       │
+└───────────────────┘     └─────────┬─────────┘
+                                   │
+                                   ▼
+                          ┌───────────────────┐
+                          │  Anthropic Claude │
+                          │       API         │
+                          └───────────────────┘
+```
+
+Components:
+
+1. **AI Orchestrator Service**
+   - Manage API calls to Anthropic
+   - Handle prompt engineering and context management
+   - Implement caching for similar queries
+   - Process and format AI responses
+
+2. **AI Use Cases**
+   - Generate outreach suggestions based on prospect profiles
+   - Provide market entry strategy recommendations
+   - Summarize company and product information
+   - Create talking points for sales conversations
+
+### Database Strategy
+
+Given the expected data volume, the database strategy includes:
+
+1. **PostgreSQL for structured data**
+   - Appropriate indexing for performance
+   - Partitioning for large tables
+   - Connection pooling with pgBouncer
+
+2. **TimescaleDB extension for time-series data**
+   - Efficient storage and querying of market trends
+   - Automatic partitioning by time
+
+3. **Read replicas for analytics queries**
+   - Separate read-heavy analytics queries from transactional workloads
+   - Scale read capacity independently
 
 ## UI/UX Design Patterns
 
@@ -185,19 +339,51 @@ PharmaSage employs several consistent UI/UX design patterns:
 
 ## Data Flow
 
-Currently, PharmaSage uses mock data for demonstration purposes, but it's structured to work with real data:
+The data flow in PharmaSage follows this pattern:
 
-1. **Data Fetching**: The application is set up with React Query for data fetching, suggesting an API-driven architecture.
+1. **Data Ingestion**:
+   - External data sources → Raw Data Lake (S3)
+   - ETL pipelines process and transform data
+   - Structured data stored in PostgreSQL
 
-2. **Component State**: Each component manages its own state for UI interactions.
+2. **API Layer**:
+   - FastAPI endpoints query the database
+   - Business logic applied in service layer
+   - Results returned to frontend
 
-3. **Mock Data**: Mock data is defined within component files for demonstration.
+3. **Frontend**:
+   - React Query manages API requests and caching
+   - Component state handles UI interactions
+   - Data visualization components render insights
 
-In a production environment, the data flow would likely involve:
-- API calls to backend services
-- Data transformation and normalization
-- Caching with React Query
-- State management for complex interactions
+4. **AI Integration**:
+   - User actions trigger AI guidance requests
+   - AI Orchestrator sends prompts to Anthropic Claude
+   - Responses processed and displayed to users
+
+## Data Sources
+
+PharmaSage integrates with multiple pharmaceutical market intelligence datasets. For the MVP, we'll prioritize:
+
+### UN Comtrade Database
+- **Purpose**: Global pharmaceutical trade statistics
+- **Data Model**:
+  ```json
+  {
+    "reporter_country": "string",
+    "partner_country": "string", 
+    "commodity_code": "string (HS 30 - Pharmaceutical products)",
+    "trade_flow": "string (Import/Export)",
+    "value_usd": "number",
+    "quantity_kg": "number",
+    "period": "string (YYYY or YYYYMM)",
+    "customs_proc_code": "string",
+    "mode_of_transport": "string"
+  }
+  ```
+- **Access**: REST API available at comtradeplus.un.org
+
+Additional data sources will be integrated in future phases.
 
 ## Setup & Installation
 
@@ -209,24 +395,43 @@ To set up the PharmaSage project locally:
    cd PharmaSage
    ```
 
-2. **Install dependencies**:
+2. **Install frontend dependencies**:
    ```bash
    npm install
    ```
 
-3. **Start the development server**:
+3. **Set up backend**:
    ```bash
-   npm run dev
+   cd backend
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
    ```
 
-4. **Build for production**:
+4. **Set up environment variables**:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+5. **Start the development servers**:
+   ```bash
+   # Terminal 1 - Frontend
+   npm run dev
+   
+   # Terminal 2 - Backend
+   cd backend
+   uvicorn app.main:app --reload
+   ```
+
+6. **Build for production**:
    ```bash
    npm run build
    ```
 
-5. **Preview the production build**:
+7. **Run with Docker**:
    ```bash
-   npm run preview
+   docker-compose up -d
    ```
 
 ## Development
@@ -237,6 +442,9 @@ The project includes several development tools and configurations:
 - **TypeScript**: For type checking (`tsconfig.json`, `tsconfig.app.json`, `tsconfig.node.json`)
 - **Tailwind CSS**: For styling (`tailwind.config.ts`, `postcss.config.js`)
 - **Vite**: For fast development and building (`vite.config.ts`)
+- **FastAPI**: For API development with automatic OpenAPI documentation
+- **Alembic**: For database migrations
+- **Docker**: For containerized development and deployment
 
 To run linting:
 ```bash
@@ -248,6 +456,12 @@ To build for development:
 npm run build:dev
 ```
 
+To run backend tests:
+```bash
+cd backend
+pytest
+```
+
 ---
 
-PharmaSage is designed to be a comprehensive solution for pharmaceutical business intelligence, providing valuable insights for market analysis, buyer discovery, contact management, and compliance monitoring.
+PharmaSage is designed to be a comprehensive solution for pharmaceutical business intelligence, providing valuable insights for market analysis, buyer discovery, and contact management.

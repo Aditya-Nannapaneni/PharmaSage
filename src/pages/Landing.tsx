@@ -7,8 +7,7 @@ import {
   Globe, 
   Users, 
   Search, 
-  TrendingUp, 
-  Shield,
+  TrendingUp,
   ChevronRight,
   PlayCircle,
   CheckCircle
@@ -35,12 +34,6 @@ const Landing = () => {
       title: "Contact Intelligence",
       description: "Automated discovery of key decision-makers and stakeholders within target pharmaceutical companies.",
       benefit: "Connect directly with the right people at the right companies"
-    },
-    {
-      icon: Shield,
-      title: "Compliance Monitoring",
-      description: "Track regulatory status, licensing requirements, and compliance indicators across global markets.",
-      benefit: "Ensure regulatory alignment before market entry"
     }
   ];
 
@@ -136,7 +129,7 @@ const Landing = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Link to="/dashboard">
               <Card 
                 className={`group cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 border-border/50 ${
@@ -205,30 +198,6 @@ const Landing = () => {
                 <CardContent className="pt-0">
                   <CardDescription className="mb-3">Automated discovery of key decision-makers and stakeholders within target pharmaceutical companies.</CardDescription>
                   <div className="text-sm text-primary font-medium">Connect directly with the right people at the right companies</div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link to="/compliance-monitoring">
-              <Card 
-                className={`group cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 border-border/50 ${
-                  activeFeature === 3 ? 'border-primary/40 bg-primary/5' : ''
-                }`}
-                onMouseEnter={() => setActiveFeature(3)}
-              >
-                <CardHeader className="pb-4">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors ${
-                    activeFeature === 3 
-                      ? 'bg-gradient-to-br from-primary to-primary-glow text-white' 
-                      : 'bg-muted group-hover:bg-primary/10'
-                  }`}>
-                    <Shield className="w-6 h-6" />
-                  </div>
-                  <CardTitle className="text-lg">Compliance Monitoring</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <CardDescription className="mb-3">Track regulatory status, licensing requirements, and compliance indicators across global markets.</CardDescription>
-                  <div className="text-sm text-primary font-medium">Ensure regulatory alignment before market entry</div>
                 </CardContent>
               </Card>
             </Link>

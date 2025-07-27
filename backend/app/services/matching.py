@@ -5,7 +5,11 @@ This module provides services for the prospect matching functionality.
 """
 from typing import Dict, List, Any, Optional
 import uuid
+import logging
 from sqlalchemy.orm import Session
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Mock data for development
 MOCK_PROSPECTS = [
@@ -175,7 +179,9 @@ def find_prospects(
     company_name: str, 
     products: List[str], 
     licensed_markets: List[str], 
-    limit: int = 10
+    limit: int = 10,
+    use_deep_research: bool = False,
+    company_website: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """
     Find potential buyer prospects.
@@ -186,25 +192,56 @@ def find_prospects(
         products: List of product names or IDs
         licensed_markets: List of licensed markets
         limit: Maximum number of prospects to return
+        use_deep_research: Whether to use Perplexity Deep Research
+        company_website: Website URL of the company (required if use_deep_research is True)
         
     Returns:
         List of potential buyer prospects with details
     """
-    # In a real implementation, this would query the database and run a matching algorithm
-    # For now, return mock data
-    
-    # Simulate filtering based on licensed markets
     results = []
+    
+    # If deep research is requested and we have a company website
+    if use_deep_research and company_website:
+        try:
+            # Import here to avoid circular imports
+            from app.services import buyer_research
+            
+            logger.info(f"Using deep research for {company_name} ({company_website})")
+            
+            # Get research-based prospects
+            research_results = buyer_research.research_potential_buyers(
+                db, company_name, company_website, products
+            )
+            
+            # Debug log the research results
+            logger.info(f"Research results: {research_results}")
+            
+            # Add research results to the list
+            results.extend(research_results)
+            
+            logger.info(f"Found {len(research_results)} prospects through deep research")
+            logger.info(f"Results after adding research: {len(results)} prospects")
+        except Exception as e:
+            # Log the error but continue with the regular matching
+            logger.error(f"Deep research failed: {str(e)}")
+    
+    # Continue with the existing implementation
+    logger.info("Adding database/mock prospects")
     for prospect in MOCK_PROSPECTS:
         # In a real implementation, we would check if the prospect operates in any of the licensed markets
         # For now, just return all prospects
         results.append(prospect)
     
+    logger.info(f"Results after adding mock: {len(results)} prospects")
+    
     # Sort by opportunity score (descending)
     results.sort(key=lambda x: x["opportunityScore"], reverse=True)
     
     # Limit the results
-    return results[:limit]
+    limited_results = results[:limit]
+    logger.info(f"Final results after limiting: {len(limited_results)} prospects")
+    
+    return limited_results
 
 
 def get_prospect_details(
@@ -221,20 +258,62 @@ def get_prospect_details(
     Returns:
         Detailed prospect information
     """
+    logger.info(f"Getting details for prospect: {prospect_id}")
+    
     # In a real implementation, this would query the database
     # For now, return mock data
     
+    # Check if this is a research-based prospect
+    if prospect_id.startswith("research-"):
+        logger.info("This is a research-based prospect")
+        
+        # For research-based prospects, we need to get the data from the research service
+        try:
+            # Import here to avoid circular imports
+            from app.services import buyer_research
+            
+            # Get research-based prospects
+            research_results = buyer_research.research_potential_buyers(
+                db, "Example Pharma", "https://example.com", ["Product A", "Product B"]
+            )
+            
+            # Find the prospect with the matching ID
+            for prospect in research_results:
+                if prospect["id"] == prospect_id:
+                    logger.info(f"Found research-based prospect: {prospect['name']}")
+                    
+                    # Add additional details for research-based prospects
+                    prospect["description"] = f"{prospect['name']} is a potential buyer identified through AI-powered research. They operate in the {prospect['segment']} segment and are located in {prospect['location']}."
+                    prospect["tradingHistory"] = []
+                    prospect["complianceStatus"] = {
+                        "rating": "Unknown",
+                        "certifications": [],
+                        "lastAudit": "N/A",
+                        "issues": []
+                    }
+                    prospect["marketPresence"] = [prospect["location"]]
+                    prospect["competitors"] = []
+                    
+                    return prospect
+            
+            logger.warning(f"Research-based prospect not found: {prospect_id}")
+        except Exception as e:
+            logger.error(f"Error getting research-based prospect: {str(e)}")
+    
     # Check if we have detailed information for this prospect
     if prospect_id in MOCK_PROSPECT_DETAILS:
+        logger.info(f"Found prospect in MOCK_PROSPECT_DETAILS: {prospect_id}")
         return MOCK_PROSPECT_DETAILS[prospect_id]
     
     # If not, find the prospect in the basic list
     for prospect in MOCK_PROSPECTS:
         if prospect["id"] == prospect_id:
             # Return basic information
+            logger.info(f"Found prospect in MOCK_PROSPECTS: {prospect_id}")
             return prospect
     
     # If prospect not found, return empty dict
+    logger.warning(f"Prospect not found: {prospect_id}")
     return {}
 
 
@@ -273,6 +352,32 @@ def generate_outreach_guidance(
                 "nextSteps": []
             }
         }
+    
+    # For research-based prospects, we could use the Perplexity API to generate guidance
+    if prospect.get("source") == "perplexity_research":
+        # In a real implementation, we would use the Perplexity API
+        # For now, return a modified version of the mock guidance
+        guidance = dict(MOCK_GUIDANCE)
+        guidance["talkingPoints"] = [
+            f"Based on our research, {prospect['name']} could benefit from our products",
+            f"They operate in the {prospect['segment']} segment, which aligns with our offerings",
+            "Our research indicates they may be looking for new suppliers",
+            f"They are located in {prospect['location']}, where we have distribution capabilities"
+        ]
+        
+        # Add decision makers based on key contacts
+        guidance["decisionMakers"] = []
+        for contact in prospect.get("keyContacts", []):
+            if "," in contact:
+                name, title = contact.split(",", 1)
+                guidance["decisionMakers"].append({
+                    "name": name.strip(),
+                    "title": title.strip(),
+                    "influence": "Key decision maker",
+                    "interests": "Unknown"
+                })
+        
+        return guidance
     
     # For now, return mock guidance
     return MOCK_GUIDANCE

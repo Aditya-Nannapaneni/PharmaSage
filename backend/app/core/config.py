@@ -75,6 +75,9 @@ class Settings(BaseSettings):
     # Anthropic API
     ANTHROPIC_API_KEY: Optional[str] = os.getenv("ANTHROPIC_API_KEY")
     
+    # Perplexity API
+    PERPLEXITY_API_KEY: Optional[str] = os.getenv("PERPLEXITY_API_KEY")
+    
     # Redis Cache (optional)
     REDIS_HOST: Optional[str] = os.getenv("REDIS_HOST")
     REDIS_PORT: int = int(os.getenv("REDIS_PORT", "6379"))

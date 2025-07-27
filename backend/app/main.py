@@ -9,9 +9,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 import os
+import logging
 
-from app.api import dashboard, search, match, contacts, export, analytics
+from app.api import dashboard, search, match, contacts, export, analytics, research
 from app.core.config import settings
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -39,6 +44,7 @@ app.include_router(match.router, prefix="/api/match", tags=["match"])
 app.include_router(contacts.router, prefix="/api/prospect", tags=["contacts"])
 app.include_router(export.router, prefix="/api/export", tags=["export"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
+app.include_router(research.router, prefix="/api/research", tags=["research"])
 
 # Mount static files (for frontend in integrated deployment)
 # Only mount if the dist directory exists

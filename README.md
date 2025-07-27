@@ -23,6 +23,7 @@ PharmaSage is a comprehensive pharmaceutical business intelligence platform that
 - [Data Sources](#data-sources)
 - [Setup & Installation](#setup--installation)
 - [Development](#development)
+- [Running the Application](#running-the-application)
 
 ## Project Overview
 
@@ -498,6 +499,20 @@ To run backend tests:
 cd backend
 pytest
 ```
+
+## Running the Application
+
+You can access the application in two ways:
+
+1. **Development Mode**:
+   - Frontend: http://localhost:8080/ (with hot reloading)
+   - Backend API: http://localhost:8000/api/
+
+2. **Integrated Mode**:
+   - Full application: http://localhost:8000/ (backend serves frontend static files)
+   - API documentation: http://localhost:8000/api/docs
+
+The backend server is configured to look for the frontend build files (dist directory) in both the current directory and the parent directory. This allows the backend to serve the frontend static files regardless of whether you run the server from the root directory or the backend directory.
 
 ---
 

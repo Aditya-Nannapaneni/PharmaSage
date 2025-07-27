@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Buyer discovery prospect identification prompt
   - Documentation for prompt management
 
+### Fixed
+- Enhanced static files mounting to check for dist directory in both current and parent directories
+  - Resolves issue where backend server couldn't find static files when run from backend directory
+  - Adds improved logging for static files mounting
+
 ## [0.1.0] - 2025-07-23
 
 ### Added

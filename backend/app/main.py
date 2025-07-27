@@ -47,9 +47,20 @@ app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"]
 app.include_router(research.router, prefix="/api/research", tags=["research"])
 
 # Mount static files (for frontend in integrated deployment)
-# Only mount if the dist directory exists
-if os.path.exists("dist"):
-    app.mount("/", StaticFiles(directory="dist", html=True), name="static")
+# Check for dist directory in both current directory and parent directory
+dist_path = "dist"
+if not os.path.exists(dist_path):
+    # Try parent directory
+    parent_dist_path = os.path.join("..", "dist")
+    if os.path.exists(parent_dist_path):
+        dist_path = parent_dist_path
+        logger.info(f"Using dist directory from parent directory: {os.path.abspath(parent_dist_path)}")
+
+if os.path.exists(dist_path):
+    logger.info(f"Mounting static files from: {os.path.abspath(dist_path)}")
+    app.mount("/", StaticFiles(directory=dist_path, html=True), name="static")
+else:
+    logger.warning("No dist directory found. Static files will not be served.")
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

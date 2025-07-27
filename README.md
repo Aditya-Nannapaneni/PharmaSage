@@ -11,6 +11,7 @@ PharmaSage is a comprehensive pharmaceutical business intelligence platform that
   - [Market Intelligence Dashboard](#market-intelligence-dashboard)
   - [Buyer Discovery Engine](#buyer-discovery-engine)
   - [Contact Intelligence](#contact-intelligence)
+  - [AI-Powered Deep Research](#ai-powered-deep-research)
 - [Component Architecture](#component-architecture)
 - [Backend Architecture](#backend-architecture)
   - [Data Integration Layer](#data-integration-layer)
@@ -50,7 +51,9 @@ PharmaSage is built with modern web technologies:
 - **Data Processing**: Apache Airflow for ETL pipelines
 - **Storage**: AWS S3 for data lake
 - **Caching**: Redis (optional)
-- **AI/ML**: Anthropic Claude API for guidance generation
+- **AI/ML**: 
+  - Anthropic Claude API for guidance generation
+  - Perplexity API for deep research on potential buyers
 - **Authentication**: OAuth 2.0 with JWT
 - **Containerization**: Docker
 - **Deployment**: AWS ECS/Fargate
@@ -93,6 +96,7 @@ PharmaSage/
 │   │   │   ├── match.py     # Prospect matching endpoints
 │   │   │   ├── contacts.py  # Contact endpoints
 │   │   │   ├── export.py    # Data export endpoints
+│   │   │   ├── research.py  # Deep research endpoints
 │   │   │   └── analytics.py # Usage tracking endpoints
 │   │   ├── core/            # Core application code
 │   │   │   ├── config.py    # Configuration settings
@@ -110,6 +114,9 @@ PharmaSage/
 │   │   │   └── contact.py   # Contact model
 │   │   ├── schemas/         # Pydantic schemas
 │   │   ├── services/        # Business logic
+│   │   │   ├── matching.py  # Prospect matching service
+│   │   │   ├── buyer_research.py # Buyer research service
+│   │   │   └── perplexity_client.py # Perplexity API client
 │   │   ├── utils/           # Utility functions
 │   │   └── main.py          # FastAPI application entry point
 │   ├── data_ingestion/      # Data ingestion pipelines
@@ -183,6 +190,22 @@ Contact Intelligence provides automated discovery of key decision-makers and sta
 - View detailed contact information including email, phone, department, and interactions
 - Track relationship scores and recent activities
 
+### AI-Powered Deep Research
+
+The AI-Powered Deep Research feature uses the Perplexity API to conduct in-depth research on potential buyers for pharmaceutical products.
+
+**Key Components:**
+- Perplexity API integration for deep research
+- Research-based prospect identification
+- Customized outreach guidance for research-based prospects
+
+**Functionality:**
+- Conduct deep research on company websites to identify potential buyers
+- Generate structured data from research results
+- Enhance prospect matching with research-based insights
+- Provide customized outreach guidance for research-based prospects
+- Cache research results to reduce API calls
+
 ## Component Architecture
 
 PharmaSage follows a component-based architecture with:
@@ -234,12 +257,12 @@ The data integration layer is responsible for collecting, processing, and storin
 The core API layer provides endpoints for the frontend to interact with the backend:
 
 ```
-┌───────────────────────────────────────────────────────────┐
-│                     FastAPI Application                   │
-├───────────┬───────────┬───────────┬───────────┬───────────┤
-│ Dashboard │  Search   │  Matching │  Export   │ Analytics │
-│   API     │    API    │    API    │    API    │    API    │
-└───────────┴───────────┴───────────┴───────────┴───────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│                         FastAPI Application                           │
+├───────────┬───────────┬───────────┬───────────┬───────────┬───────────┤
+│ Dashboard │  Search   │  Matching │  Export   │ Analytics │ Research  │
+│   API     │    API    │    API    │    API    │    API    │    API    │
+└───────────┴───────────┴───────────┴───────────┴───────────┴───────────┘
 ```
 
 Key components:
@@ -258,6 +281,7 @@ Key components:
    - Core prospect discovery engine
    - Algorithm to match input companies/products with potential buyers
    - Scoring and ranking logic
+   - Integration with deep research results
 
 4. **Export API**
    - CSV generation for search results and matches
@@ -269,9 +293,14 @@ Key components:
    - Usage metrics collection
    - Feature popularity analysis
 
+6. **Research API**
+   - Deep research on potential buyers
+   - Integration with Perplexity API
+   - Structured data extraction from research results
+
 ### AI Integration Layer
 
-The AI integration layer connects to Anthropic's Claude API for generating guidance and insights:
+The AI integration layer connects to Anthropic's Claude API and Perplexity API for generating guidance and insights:
 
 ```
 ┌───────────────────┐     ┌───────────────────┐
@@ -284,12 +313,18 @@ The AI integration layer connects to Anthropic's Claude API for generating guida
                           │  Anthropic Claude │
                           │       API         │
                           └───────────────────┘
+                                   │
+                                   ▼
+                          ┌───────────────────┐
+                          │  Perplexity API   │
+                          │                   │
+                          └───────────────────┘
 ```
 
 Components:
 
 1. **AI Orchestrator Service**
-   - Manage API calls to Anthropic
+   - Manage API calls to Anthropic and Perplexity
    - Handle prompt engineering and context management
    - Implement caching for similar queries
    - Process and format AI responses
@@ -299,6 +334,7 @@ Components:
    - Provide market entry strategy recommendations
    - Summarize company and product information
    - Create talking points for sales conversations
+   - Conduct deep research on potential buyers
 
 ### Database Strategy
 
@@ -358,7 +394,7 @@ The data flow in PharmaSage follows this pattern:
 
 4. **AI Integration**:
    - User actions trigger AI guidance requests
-   - AI Orchestrator sends prompts to Anthropic Claude
+   - AI Orchestrator sends prompts to Anthropic Claude or Perplexity
    - Responses processed and displayed to users
 
 ## Data Sources
@@ -412,6 +448,7 @@ To set up the PharmaSage project locally:
    ```bash
    cp .env.example .env
    # Edit .env with your configuration
+   # Make sure to add your Perplexity API key for deep research
    ```
 
 5. **Start the development servers**:

@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Perplexity API integration for deep research on potential buyers
+  - New Perplexity API client with caching and error handling
+  - Buyer research service for identifying potential buyers
+  - Research API endpoints for direct access to research functionality
+  - Enhanced matching service to include research-based prospects
+  - Customized outreach guidance for research-based prospects
+  - Comprehensive unit tests for all new components
 - Prompt management structure for AI services
   - Base prompt template utilities
   - Buyer discovery prospect identification prompt

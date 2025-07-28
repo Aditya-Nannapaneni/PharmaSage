@@ -57,8 +57,10 @@ async def check_research_status() -> Dict[str, Any]:
     """
     status = {
         "service": "research",
-        "status": "available" if settings.PERPLEXITY_API_KEY else "unconfigured",
-        "message": "Research service is ready" if settings.PERPLEXITY_API_KEY else "API key not configured"
+        "status": "available" if settings.PERPLEXITY_API_KEY or settings.USE_MOCK_RESPONSES else "unconfigured",
+        "mode": "mock" if settings.USE_MOCK_RESPONSES else "live",
+        "api_configured": settings.PERPLEXITY_API_KEY is not None,
+        "message": "Research service is ready" if settings.PERPLEXITY_API_KEY or settings.USE_MOCK_RESPONSES else "API key not configured"
     }
     
     return status

@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions"  # Updated endpoint based on documentation
 PERPLEXITY_API_KEY = settings.PERPLEXITY_API_KEY
 
-# Flag to use mock responses for testing
-USE_MOCK_RESPONSES = True
+# Flag to use mock responses for testing - now using the setting from config
+USE_MOCK_RESPONSES = settings.USE_MOCK_RESPONSES
 
 def run_deep_research(prompt: str, max_tokens: Optional[int] = None) -> Dict[str, Any]:
     """

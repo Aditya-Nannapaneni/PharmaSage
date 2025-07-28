@@ -105,7 +105,7 @@ const Landing = () => {
               Discover global market opportunities, identify qualified buyers, and accelerate pharmaceutical business development with AI-powered intelligence.
             </p>
             
-            <div className="flex justify-center">
+            <div className="flex justify-start">
               <a href="#features">
                 <Button size="lg" className="bg-gradient-to-r from-primary to-primary-glow hover:from-primary/90 hover:to-primary-glow/90 text-white shadow-lg hover:shadow-primary/25 transition-all duration-300">
                   <PlayCircle className="w-5 h-5 mr-2" />

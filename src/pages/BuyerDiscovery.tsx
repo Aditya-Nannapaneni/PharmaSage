@@ -102,7 +102,8 @@ const BuyerDiscovery = () => {
   const [companyUrl, setCompanyUrl] = useState("");
   const [isResearching, setIsResearching] = useState(false);
   const [hasResults, setHasResults] = useState(false);
-  const [activeUIOption, setActiveUIOption] = useState("cards"); // cards, table, detailed
+  const [activeUIOption, setActiveUIOption] = useState("cards");
+  const [selectedBuyer, setSelectedBuyer] = useState<number | null>(null);
 
   const handleResearch = async () => {
     setIsResearching(true);
@@ -369,18 +370,30 @@ const BuyerDiscovery = () => {
                               ))}
                             </div>
                             <div className="flex gap-2">
-                              <Button size="sm" variant="outline" className="flex-1 text-xs">
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="flex-1 text-xs"
+                                onClick={() => {
+                                  setSelectedBuyer(buyer.id);
+                                  setActiveUIOption("detailed");
+                                }}
+                              >
                                 <Eye className="w-3 h-3 mr-1" />
                                 View
                               </Button>
-                              <Button size="sm" className="flex-1 text-xs">
+                              <Button 
+                                size="sm" 
+                                className="flex-1 text-xs"
+                                onClick={() => window.open(buyer.website, '_blank')}
+                              >
                                 <ExternalLink className="w-3 h-3 mr-1" />
                                 Visit
                               </Button>
                             </div>
                           </CardContent>
                         </Card>
-                      ))}
+                       ))}
                     </div>
                   </TabsContent>
 
@@ -427,10 +440,20 @@ const BuyerDiscovery = () => {
                             </TableCell>
                             <TableCell>
                               <div className="flex gap-2">
-                                <Button size="sm" variant="outline">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => {
+                                    setSelectedBuyer(buyer.id);
+                                    setActiveUIOption("detailed");
+                                  }}
+                                >
                                   <Eye className="w-4 h-4" />
                                 </Button>
-                                <Button size="sm">
+                                <Button 
+                                  size="sm"
+                                  onClick={() => window.open(buyer.website, '_blank')}
+                                >
                                   <ExternalLink className="w-4 h-4" />
                                 </Button>
                               </div>
@@ -443,7 +466,9 @@ const BuyerDiscovery = () => {
 
                   {/* Detailed View */}
                   <TabsContent value="detailed" className="space-y-6 mt-0">
-                    {mockResearchResult.discoveredBuyers.map((buyer) => (
+                    {mockResearchResult.discoveredBuyers
+                      .filter(buyer => selectedBuyer === null || buyer.id === selectedBuyer)
+                      .map((buyer) => (
                       <Card key={buyer.id} className="border-border">
                         <CardHeader>
                           <div className="flex items-start justify-between">

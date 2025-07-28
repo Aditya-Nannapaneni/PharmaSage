@@ -18,16 +18,16 @@ const Landing = () => {
 
   const features = [
     {
-      icon: BarChart3,
-      title: "Market Intelligence Dashboard",
-      description: "Real-time insights into global pharmaceutical trade flows, emerging trends, and market opportunities.",
-      benefit: "Stay ahead of market shifts with comprehensive data visualization"
-    },
-    {
       icon: Search,
       title: "Buyer Discovery Engine",
       description: "AI-powered prospect identification that finds the most relevant buyers for your pharmaceutical products.",
       benefit: "Reduce prospecting time from weeks to minutes"
+    },
+    {
+      icon: BarChart3,
+      title: "Market Intelligence Dashboard",
+      description: "Real-time insights into global pharmaceutical trade flows, emerging trends, and market opportunities.",
+      benefit: "Stay ahead of market shifts with comprehensive data visualization"
     },
     {
       icon: Users,
@@ -130,7 +130,7 @@ const Landing = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link to="/dashboard">
+            <Link to="/buyer-discovery">
               <Card 
                 className={`group cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 border-border/50 ${
                   activeFeature === 0 ? 'border-primary/40 bg-primary/5' : ''
@@ -143,18 +143,18 @@ const Landing = () => {
                       ? 'bg-gradient-to-br from-primary to-primary-glow text-white' 
                       : 'bg-muted group-hover:bg-primary/10'
                   }`}>
-                    <BarChart3 className="w-6 h-6" />
+                    <Search className="w-6 h-6" />
                   </div>
-                  <CardTitle className="text-lg">Market Intelligence Dashboard</CardTitle>
+                  <CardTitle className="text-lg">Buyer Discovery Engine</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <CardDescription className="mb-3">Real-time insights into global pharmaceutical trade flows, emerging trends, and market opportunities.</CardDescription>
-                  <div className="text-sm text-primary font-medium">Stay ahead of market shifts with comprehensive data visualization</div>
+                  <CardDescription className="mb-3">AI-powered prospect identification that finds the most relevant buyers for your pharmaceutical products.</CardDescription>
+                  <div className="text-sm text-primary font-medium">Reduce prospecting time from weeks to minutes</div>
                 </CardContent>
               </Card>
             </Link>
 
-            <Link to="/buyer-discovery">
+            <Link to="/dashboard">
               <Card 
                 className={`group cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 border-border/50 ${
                   activeFeature === 1 ? 'border-primary/40 bg-primary/5' : ''
@@ -167,13 +167,13 @@ const Landing = () => {
                       ? 'bg-gradient-to-br from-primary to-primary-glow text-white' 
                       : 'bg-muted group-hover:bg-primary/10'
                   }`}>
-                    <Search className="w-6 h-6" />
+                    <BarChart3 className="w-6 h-6" />
                   </div>
-                  <CardTitle className="text-lg">Buyer Discovery Engine</CardTitle>
+                  <CardTitle className="text-lg">Market Intelligence Dashboard</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <CardDescription className="mb-3">AI-powered prospect identification that finds the most relevant buyers for your pharmaceutical products.</CardDescription>
-                  <div className="text-sm text-primary font-medium">Reduce prospecting time from weeks to minutes</div>
+                  <CardDescription className="mb-3">Real-time insights into global pharmaceutical trade flows, emerging trends, and market opportunities.</CardDescription>
+                  <div className="text-sm text-primary font-medium">Stay ahead of market shifts with comprehensive data visualization</div>
                 </CardContent>
               </Card>
             </Link>

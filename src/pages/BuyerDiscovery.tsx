@@ -134,12 +134,22 @@ const BuyerDiscovery = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/20 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+      <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-primary opacity-10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-gradient-success opacity-10 rounded-full blur-3xl"></div>
+      
       {/* Header */}
-      <header className="border-b border-border bg-gradient-card shadow-card">
+      <header className="relative border-b border-border bg-gradient-card/80 backdrop-blur-sm shadow-card">
         <div className="flex h-16 items-center justify-between px-6">
           <div className="flex items-center gap-6">
-            <h1 className="text-xl font-bold text-foreground">AI-Powered Buyer Discovery Engine</h1>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <Target className="w-4 h-4 text-primary-foreground" />
+              </div>
+              <h1 className="text-xl font-bold text-foreground">AI-Powered Buyer Discovery Engine</h1>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             {hasResults && (
@@ -158,7 +168,56 @@ const BuyerDiscovery = () => {
         </div>
       </header>
 
-      <main className="p-6 space-y-6">
+      {!hasResults && !isResearching && (
+        <section className="relative py-20 px-6">
+          <div className="max-w-4xl mx-auto text-center space-y-8">
+            <div className="space-y-4">
+              <h2 className="text-4xl font-bold text-foreground">
+                Discover Your Next
+                <span className="bg-gradient-primary bg-clip-text text-transparent"> Big Opportunity</span>
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Leverage AI to identify and analyze potential buyers for your pharmaceutical products. 
+                Get detailed market intelligence, contact information, and AI-generated outreach strategies.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+              <div className="p-6 rounded-lg bg-gradient-card border border-border">
+                <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Search className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <h3 className="font-semibold text-foreground mb-2">AI-Powered Research</h3>
+                <p className="text-sm text-muted-foreground">
+                  Advanced algorithms analyze your company profile and identify the most relevant prospects
+                </p>
+              </div>
+              
+              <div className="p-6 rounded-lg bg-gradient-card border border-border">
+                <div className="w-12 h-12 bg-gradient-success rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-6 h-6 text-success-foreground" />
+                </div>
+                <h3 className="font-semibold text-foreground mb-2">Contact Intelligence</h3>
+                <p className="text-sm text-muted-foreground">
+                  Get verified contact information and decision-maker profiles for targeted outreach
+                </p>
+              </div>
+              
+              <div className="p-6 rounded-lg bg-gradient-card border border-border">
+                <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="w-6 h-6 text-accent" />
+                </div>
+                <h3 className="font-semibold text-foreground mb-2">Market Insights</h3>
+                <p className="text-sm text-muted-foreground">
+                  Comprehensive analysis with opportunity scores and strategic recommendations
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <main className="relative p-6 space-y-6">
         {/* Research Input Form */}
         <Card className="bg-gradient-card border-border">
           <CardHeader>

@@ -24,6 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced static files mounting to check for dist directory in both current and parent directories
   - Resolves issue where backend server couldn't find static files when run from backend directory
   - Adds improved logging for static files mounting
+- Improved Perplexity API response parsing in buyer research service
+  - Fixed handling of different response formats from the Perplexity API
+  - Added robust extraction methods for company information
+  - Implemented multiple fallback strategies for data extraction
+  - Enhanced error handling and logging for better debugging
+  - Ensured consistent output format for frontend compatibility
 
 ## [0.1.0] - 2025-07-23
 

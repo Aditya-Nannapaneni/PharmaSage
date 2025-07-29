@@ -90,9 +90,12 @@ const BuyerDiscovery = () => {
       fetch('/api/research/status')
         .then(res => res.json())
         .then(data => {
+          console.log("API Status:", data);
           setApiMode(data.mode);
         })
-        .catch(err => console.error('Failed to check API status:', err));
+        .catch(err => {
+          console.error('Failed to check API status:', err);
+        });
     }
   }, []);
 
@@ -110,6 +113,8 @@ const BuyerDiscovery = () => {
       // Extract company name from URL for API call
       const companyName = extractCompanyNameFromUrl(companyUrl);
       
+      console.log("Starting research for:", companyName, companyUrl);
+      
       // Make API call to backend
       const response = await fetch('/api/research/buyers', {
         method: 'POST',
@@ -119,19 +124,23 @@ const BuyerDiscovery = () => {
         body: JSON.stringify({
           company_name: companyName,
           company_website: companyUrl,
-          products: ["Generic APIs"], // Default products, could be made configurable
         }),
       });
       
+      console.log("API Response status:", response.status);
+      
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error("API Error:", errorData);
         throw new Error(errorData.detail || `Research failed: ${response.statusText}`);
       }
       
       const results = await response.json();
+      console.log("API Results:", results);
       
       // Validate response structure
       if (!results || typeof results !== 'object' || !results.sourceCompany || !results.discoveredBuyers) {
+        console.error("Invalid response format:", results);
         throw new Error("Invalid response format from server");
       }
       
@@ -200,14 +209,11 @@ const BuyerDiscovery = () => {
       </header>
 
       <main className="relative p-6 space-y-6">
-        {/* Development Mode Indicator */}
-        {import.meta.env.DEV && apiMode && (
+        {/* Development Mode Indicator - Only shown when using mock data */}
+        {import.meta.env.DEV && apiMode === 'mock' && (
           <div className="p-2 bg-yellow-100 text-yellow-800 text-sm rounded-md mb-4">
             <div className="flex items-center gap-2">
-              <span>API Mode:</span>
-              <span className="font-medium">
-                {apiMode === 'mock' ? 'Using Mock Data' : 'Using Live API'}
-              </span>
+              <span className="font-medium">Using Mock Data</span>
               <span className="text-xs">
                 (Controlled by USE_MOCK_RESPONSES environment variable in backend)
               </span>

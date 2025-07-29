@@ -23,6 +23,10 @@ PERPLEXITY_API_KEY = settings.PERPLEXITY_API_KEY
 # Flag to use mock responses for testing - use the setting from config
 USE_MOCK_RESPONSES = settings.USE_MOCK_RESPONSES
 
+# Print the value of USE_MOCK_RESPONSES for debugging
+print(f"USE_MOCK_RESPONSES: {USE_MOCK_RESPONSES}")
+logger.info(f"USE_MOCK_RESPONSES: {USE_MOCK_RESPONSES}")
+
 def run_deep_research(prompt: str, max_tokens: Optional[int] = None) -> Dict[str, Any]:
     """
     Execute a deep research query using the Perplexity API.
@@ -52,25 +56,41 @@ def run_deep_research(prompt: str, max_tokens: Optional[int] = None) -> Dict[str
             "Content-Type": "application/json"
         }
         
+        # Updated payload with correct model name based on documentation
         payload = {
-            "model": "sonar-medium-online",
-            "messages": [{"role": "user", "content": prompt}],
-            "stream": False
+            "model": "sonar-deep-research",  # Using the correct model name from documentation
+            "messages": [{"role": "user", "content": prompt}]
         }
         
+        # Add max_tokens if specified
         if max_tokens:
             payload["max_tokens"] = max_tokens
         
         logger.info(f"Sending request to Perplexity API: {PERPLEXITY_API_URL}")
+        logger.info(f"Request payload: {json.dumps(payload)}")
         response = requests.post(PERPLEXITY_API_URL, json=payload, headers=headers)
+        
+        # Log response status and headers for debugging
+        logger.info(f"Response status: {response.status_code}")
+        logger.info(f"Response headers: {response.headers}")
+        
+        if not response.ok:
+            logger.error(f"Error response body: {response.text}")
+            
         response.raise_for_status()
         
         # Extract the text from the response
         api_response = response.json()
-        text = api_response.get("choices", [{}])[0].get("message", {}).get("content", "")
+        logger.info(f"API response structure: {json.dumps(api_response)[:500]}...")
         
-        # Return in the format expected by the buyer_research module
-        return {"text": text}
+        # Extract the content from the choices array and add it to the response as "text"
+        # This ensures compatibility with the existing parsing code
+        if "choices" in api_response and len(api_response["choices"]) > 0:
+            message = api_response["choices"][0].get("message", {})
+            content = message.get("content", "")
+            api_response["text"] = content
+        
+        return api_response
     
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 429:
@@ -83,6 +103,14 @@ def run_deep_research(prompt: str, max_tokens: Optional[int] = None) -> Dict[str
             raise Exception("Research service configuration error. Please contact support.")
         else:
             logger.error(f"Perplexity API error: {str(e)}")
+            # Try to get more details from the response
+            error_detail = ""
+            try:
+                error_detail = e.response.json().get("error", {}).get("message", "")
+            except:
+                pass
+            if error_detail:
+                logger.error(f"API error details: {error_detail}")
             raise Exception(f"Research service error: {str(e)}")
     
     except Exception as e:
@@ -109,8 +137,7 @@ def _get_mock_response(prompt: str) -> Dict[str, Any]:
     company_name = company_website.split("//")[-1].split(".")[0].capitalize()
     
     # Create a mock response with a well-structured markdown format
-    mock_response = {
-        "text": f"""
+    mock_text = f"""
 # Source Company Overview
 {company_name} is a pharmaceutical company specializing in generic medications and APIs. They focus on cardiovascular, oncology, and central nervous system therapeutics.
 
@@ -131,6 +158,28 @@ Small to mid-size pharmaceutical manufacturers looking for reliable API supplier
 | BioTech Innovations | https://biotechinnovations.example.com | India | Formulation Developer | Raj Patel, Head of R&D | Developing new formulations requiring high-quality APIs |
 | HealthCare Partners | https://healthcarepartners.example.com | Brazil | Regional Distributor | Carlos Santos, Business Development | Looking to expand product portfolio in Latin America |
 """
+    
+    # Create a response structure that matches the Perplexity API response
+    mock_response = {
+        "id": "mock-response-id",
+        "model": "mock-model",
+        "created": int(datetime.now().timestamp()),
+        "usage": {
+            "prompt_tokens": 100,
+            "completion_tokens": 500,
+            "total_tokens": 600
+        },
+        "choices": [
+            {
+                "index": 0,
+                "finish_reason": "stop",
+                "message": {
+                    "role": "assistant",
+                    "content": mock_text
+                }
+            }
+        ],
+        "text": mock_text  # Add the text field for compatibility with existing code
     }
     
     return mock_response

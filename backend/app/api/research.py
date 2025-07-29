@@ -36,7 +36,6 @@ def validate_url(url: str) -> bool:
 async def research_buyers(
     company_name: str = Body(..., description="Company name"),
     company_website: str = Body(..., description="Company website URL"),
-    products: List[str] = Body(..., description="List of product names"),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -48,7 +47,6 @@ async def research_buyers(
     Args:
         company_name: Name of the company
         company_website: Website URL of the company
-        products: List of product names
         db: Database session
         
     Returns:
@@ -63,7 +61,7 @@ async def research_buyers(
     
     try:
         return buyer_research.research_potential_buyers(
-            db, company_name, company_website, products
+            db, company_name, company_website
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

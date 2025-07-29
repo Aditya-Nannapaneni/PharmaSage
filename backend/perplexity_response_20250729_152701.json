@@ -1,0 +1,11 @@
+{
+  "model": "mock-model",
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "content": "This is a mock response for testing purposes."
+      }
+    }
+  ]
+}

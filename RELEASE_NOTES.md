@@ -1,39 +1,72 @@
-# PharmaSage v0.1.0 Release Notes
+# PharmaSage v0.2.0 Release Notes
 
 ## Overview
 
-This is the initial release of PharmaSage with backend implementation. PharmaSage is a pharmaceutical market intelligence platform that helps pharmaceutical companies discover new markets, find potential buyers, and manage contact intelligence.
+This release introduces AI-powered buyer discovery capabilities to PharmaSage through integration with the Perplexity API. The platform now offers deep research capabilities to identify potential buyers for pharmaceutical products based on company websites and market data.
 
 ## Key Features
 
-- **Backend API Implementation**
-  - Dashboard API for metrics and trends
-  - Search API for products and companies
-  - Match API for prospect discovery
-  - Contacts API for contact intelligence
+### AI-Powered Buyer Discovery
+- **Perplexity API Integration**: Leverages Perplexity's deep research capabilities to analyze company websites and identify potential buyers
+- **Intelligent Parsing**: Robust extraction of company information, business models, and buyer recommendations
+- **Caching System**: Efficient caching mechanism to reduce API calls and improve performance
+- **Error Handling**: Comprehensive error handling for API interactions with detailed logging
 
-- **Testing Infrastructure**
-  - Comprehensive test suite with unit, API, and integration tests
-  - Automated test runner script
+### Enhanced User Experience
+- **Interactive Research Interface**: User-friendly interface for initiating and viewing research results
+- **Multiple View Options**: Card, table, and detailed views for research results
+- **Opportunity Scoring**: Automatic scoring of potential buyers based on fit and potential
+- **Contact Intelligence**: Extraction of key contacts from research results
 
-- **Docker Support**
-  - Containerized deployment with Docker
-  - Multi-container setup with docker-compose
+### Developer Improvements
+- **Prompt Management System**: Structured approach to managing AI prompts
+- **Robust Parsing Framework**: Flexible parsing system that handles various response formats
+- **Multiple Fallback Strategies**: Ensures data extraction even when primary methods fail
+- **Comprehensive Logging**: Detailed logging for debugging and monitoring
 
-- **Development Tools**
-  - Scripts for development and production environments
-  - Environment variable management
+## Technical Enhancements
 
-## Installation
+- **Perplexity API Client**: New client with caching, error handling, and response processing
+- **Buyer Research Service**: Service layer for researching and processing potential buyers
+- **Research API Endpoints**: New endpoints for initiating research and retrieving results
+- **Prompt Management**: Structured approach to managing and versioning AI prompts
+- **Response Parsing**: Robust parsing of API responses with multiple extraction strategies
 
-1. Clone the repository
-2. Copy `.env.example` to `.env` and configure environment variables
+## Bug Fixes
+
+- **API Response Parsing**: Fixed issues with parsing different response formats from the Perplexity API
+- **Data Extraction**: Improved extraction of company information and buyer recommendations
+- **Frontend Compatibility**: Ensured consistent output format for frontend display
+- **Static Files Mounting**: Enhanced to check for dist directory in both current and parent directories
+
+## Installation and Upgrade
+
+1. Pull the latest changes from the repository
+2. Update your `.env` file with the new Perplexity API key (see `.env.example` for reference)
 3. Run `./run_pharmasage.sh` for production mode or `./run_pharmasage_dev.sh` for development mode
+
+## Configuration
+
+To enable the Perplexity API integration, add the following to your `.env` file:
+
+```
+# Perplexity API settings
+PERPLEXITY_API_KEY=your_perplexity_api_key
+
+# Mock data control (set to false to use the real API)
+USE_MOCK_RESPONSES=false
+```
 
 ## Documentation
 
-See `BUILD_AND_RUN.md` for detailed build and run instructions.
+For a detailed list of all changes, see the [CHANGELOG.md](CHANGELOG.md) file.
 
-## Changes
+## Previous Versions
 
-For a detailed list of changes, see the [CHANGELOG.md](CHANGELOG.md) file.
+### v0.1.0 - Initial Release
+
+- Backend implementation with FastAPI
+- Testing infrastructure
+- Docker support
+- Development tools
+- Documentation

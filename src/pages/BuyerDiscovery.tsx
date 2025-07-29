@@ -1,102 +1,78 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Search, Filter, Download, Building2, MapPin, Users, TrendingUp, Star, Phone, Mail, Calendar, Globe, Target, BarChart3, ExternalLink, Loader2, CheckCircle, AlertCircle, Play, Eye, MessageCircle } from "lucide-react";
 
-// Mock research result based on your example
-const mockResearchResult = {
-  sourceCompany: {
-    name: "Viyash Life Sciences",
-    url: "https://www.viyash.com/",
-    overview: "Viyash Life Sciences is a privately held, India-headquartered pharmaceutical enterprise that has rapidly scaled via acquisitions and organic growth. It operates 10 API/intermediate plants (≈2,000 KL combined capacity) plus one US FDA-approved oral solid dosage (OSD) facility in New Jersey.",
-    businessModel: "Integrated developer–manufacturer of niche active pharmaceutical ingredients (APIs), advanced intermediates, and select finished dosage forms; also provides contract development & manufacturing (CDMO) services.",
-    therapeuticCoverage: "Diversified API pipeline (>75 commercial, 25+ pipeline) spanning anti-infective, cardiovascular (CV), CNS, diabetes, oncology, ARV, analgesics, antihistamines, anticoagulants, GI, urology, etc."
-  },
-  idealCustomerProfile: "Mid-size to upper-mid generic formulation companies, specialty pharma, and regional CDMOs seeking reliable, compliant API supply or co-development partners.",
-  discoveredBuyers: [
-    {
-      id: 1,
-      name: "Amneal Pharmaceuticals LLC",
-      website: "https://amneal.com",
-      country: "United States",
-      region: "Global",
-      targetSegment: "Large US-based generics & specialty pharma (≈270 products)",
-      keyContacts: [
-        { name: "Chirag Patel", role: "President & Co-CEO" },
-        { name: "Chintu Patel", role: "Co-CEO" },
-        { name: "Business Development", email: "BusinessDevelopment@amneal.com" }
-      ],
-      reasonForRecommendation: "Consolidating API vendors to cut costs and speed development; complex oral solids, injectables, biosimilars pipeline aligns to Viyash's oncology/CV/CNS APIs and high-potency capabilities; US FDA compliance on both sides eases tech transfer.",
-      opportunityScore: 92,
-      status: "High Priority"
-    },
-    {
-      id: 2,
-      name: "Apotex Inc.",
-      website: "https://www.apotex.com",
-      country: "Canada",
-      region: "Americas / 70+ countries",
-      targetSegment: "Tier-1 generic manufacturer & API trader",
-      keyContacts: [
-        { name: "Allan Oberman", role: "President & CEO" }
-      ],
-      reasonForRecommendation: "Global API sourcing for 485+ generic medicines; pursuing growth in Americas after EU divestiture; needs compliant API partners to support high-volume launches; Viyash's DMF portfolio covers Apotex's molecules (e.g., abacavir, apixaban).",
-      opportunityScore: 88,
-      status: "High Priority"
-    },
-    {
-      id: 3,
-      name: "Nichi-Iko Pharmaceutical Co. Ltd.",
-      website: "https://www.nichiiko.co.jp",
-      country: "Japan",
-      region: "Asia Global",
-      targetSegment: "Japan's top generic player with 11 Bn-tablet capacity; expanding overseas manufacturing",
-      keyContacts: [
-        { name: "Shingo Iwamoto", role: "CEO & President" }
-      ],
-      reasonForRecommendation: "Reorganizing supply chain, seeking external API capacity post-restructuring; focuses on 'high-quality generics' for Japan & China, requiring USFDA/EU-GMP sites; Viyash offers cost-effective, quality-audited oncology & CV APIs matching Nichi-Iko portfolio.",
-      opportunityScore: 85,
-      status: "Medium Priority"
-    },
-    {
-      id: 4,
-      name: "Laboratorios Farmacéuticos ROVI S.A.",
-      website: "https://roviservices.com",
-      country: "Spain",
-      region: "EU / 80+ export markets",
-      targetSegment: "High-value injectable CDMO and branded LMWH producer",
-      keyContacts: [
-        { name: "Juan López-Belmonte Encina", role: "Chairman & CEO" },
-        { name: "Rafael Crespo Mora", role: "BD, Contract Mfg." }
-      ],
-      reasonForRecommendation: "CDMO sales forecast to double to €700 M by 2030 with extra fill-finish lines; requires large-scale API sources (oncology, LMWH precursors); Viyash's sterile/HPAPI capability and Grignard expertise suit ROVI's injectable projects; both hold USFDA approvals facilitating supply.",
-      opportunityScore: 82,
-      status: "Medium Priority"
-    },
-    {
-      id: 5,
-      name: "Rameda",
-      website: "https://ramedapharma.com",
-      country: "Egypt",
-      region: "MENA & Africa (exports to 10+ countries)",
-      targetSegment: "Branded generic manufacturer, toll mfg., export-oriented",
-      keyContacts: [
-        { name: "Dr. Amr Morsy", role: "CEO" },
-        { name: "Khaled Daader", role: "Head M&A & IR" }
-      ],
-      reasonForRecommendation: "Monetizes spare OSD & injectable capacity via toll manufacturing; sources APIs for 129 products across 12 therapeutic areas; Viyash's ARV, CV, GI and antihistamine APIs match Rameda's domestic tender portfolio; Egypt demands cost-efficient quality APIs for government tenders.",
-      opportunityScore: 78,
-      status: "Medium Priority"
-    }
-  ]
+// Helper function to extract company name from URL
+const extractCompanyNameFromUrl = (url: string): string => {
+  try {
+    const hostname = new URL(url).hostname;
+    return hostname.replace(/^www\./, '').split('.')[0].capitalize();
+  } catch (e) {
+    return url;
+  }
 };
+
+// URL validation function
+const validateUrl = (url: string): boolean => {
+  try {
+    const parsedUrl = new URL(url);
+    return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
+  } catch (e) {
+    return false;
+  }
+};
+
+// Add capitalize method to String prototype
+declare global {
+  interface String {
+    capitalize(): string;
+  }
+}
+
+String.prototype.capitalize = function() {
+  return this.charAt(0).toUpperCase() + this.slice(1);
+};
+
+// Define interfaces for type safety
+interface Contact {
+  name: string;
+  role?: string;
+  email?: string;
+}
+
+interface BuyerProspect {
+  id: string | number;
+  name: string;
+  website: string;
+  country: string;
+  region?: string;
+  targetSegment: string;
+  keyContacts: Array<Contact | string>;
+  reasonForRecommendation: string;
+  opportunityScore: number;
+  status: string;
+}
+
+interface SourceCompany {
+  name: string;
+  url: string;
+  overview: string;
+  businessModel: string;
+  therapeuticCoverage: string;
+}
+
+interface ResearchResult {
+  sourceCompany: SourceCompany;
+  idealCustomerProfile: string;
+  discoveredBuyers: BuyerProspect[];
+}
 
 const BuyerDiscovery = () => {
   const [companyUrl, setCompanyUrl] = useState("");
@@ -104,14 +80,69 @@ const BuyerDiscovery = () => {
   const [hasResults, setHasResults] = useState(false);
   const [activeUIOption, setActiveUIOption] = useState("cards");
   const [selectedBuyer, setSelectedBuyer] = useState<number | null>(null);
+  const [researchResults, setResearchResults] = useState<ResearchResult | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [apiMode, setApiMode] = useState<string | null>(null);
+
+  // Check API mode in development
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      fetch('/api/research/status')
+        .then(res => res.json())
+        .then(data => {
+          setApiMode(data.mode);
+        })
+        .catch(err => console.error('Failed to check API status:', err));
+    }
+  }, []);
 
   const handleResearch = async () => {
+    // Validate URL first
+    if (!validateUrl(companyUrl)) {
+      setError(new Error("Please enter a valid URL (e.g., https://example.com)"));
+      return;
+    }
+    
     setIsResearching(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsResearching(false);
+    setError(null);
+    
+    try {
+      // Extract company name from URL for API call
+      const companyName = extractCompanyNameFromUrl(companyUrl);
+      
+      // Make API call to backend
+      const response = await fetch('/api/research/buyers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          company_name: companyName,
+          company_website: companyUrl,
+          products: ["Generic APIs"], // Default products, could be made configurable
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Research failed: ${response.statusText}`);
+      }
+      
+      const results = await response.json();
+      
+      // Validate response structure
+      if (!results || typeof results !== 'object' || !results.sourceCompany || !results.discoveredBuyers) {
+        throw new Error("Invalid response format from server");
+      }
+      
+      setResearchResults(results);
       setHasResults(true);
-    }, 3000);
+    } catch (err) {
+      console.error("Research failed:", err);
+      setError(err instanceof Error ? err : new Error(String(err)));
+    } finally {
+      setIsResearching(false);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -168,56 +199,71 @@ const BuyerDiscovery = () => {
         </div>
       </header>
 
-      {!hasResults && !isResearching && (
-        <section className="relative py-20 px-6">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
-            <div className="space-y-4">
-              <h2 className="text-4xl font-bold text-foreground">
-                Discover Your Next
-                <span className="bg-gradient-primary bg-clip-text text-transparent"> Big Opportunity</span>
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Leverage AI to identify and analyze potential buyers for your pharmaceutical products. 
-                Get detailed market intelligence, contact information, and AI-generated outreach strategies.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-              <div className="p-6 rounded-lg bg-gradient-card border border-border">
-                <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Search className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <h3 className="font-semibold text-foreground mb-2">AI-Powered Research</h3>
-                <p className="text-sm text-muted-foreground">
-                  Advanced algorithms analyze your company profile and identify the most relevant prospects
-                </p>
-              </div>
-              
-              <div className="p-6 rounded-lg bg-gradient-card border border-border">
-                <div className="w-12 h-12 bg-gradient-success rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-6 h-6 text-success-foreground" />
-                </div>
-                <h3 className="font-semibold text-foreground mb-2">Contact Intelligence</h3>
-                <p className="text-sm text-muted-foreground">
-                  Get verified contact information and decision-maker profiles for targeted outreach
-                </p>
-              </div>
-              
-              <div className="p-6 rounded-lg bg-gradient-card border border-border">
-                <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="w-6 h-6 text-accent" />
-                </div>
-                <h3 className="font-semibold text-foreground mb-2">Market Insights</h3>
-                <p className="text-sm text-muted-foreground">
-                  Comprehensive analysis with opportunity scores and strategic recommendations
-                </p>
-              </div>
+      <main className="relative p-6 space-y-6">
+        {/* Development Mode Indicator */}
+        {import.meta.env.DEV && apiMode && (
+          <div className="p-2 bg-yellow-100 text-yellow-800 text-sm rounded-md mb-4">
+            <div className="flex items-center gap-2">
+              <span>API Mode:</span>
+              <span className="font-medium">
+                {apiMode === 'mock' ? 'Using Mock Data' : 'Using Live API'}
+              </span>
+              <span className="text-xs">
+                (Controlled by USE_MOCK_RESPONSES environment variable in backend)
+              </span>
             </div>
           </div>
-        </section>
-      )}
+        )}
 
-      <main className="relative p-6 space-y-6">
+        {!hasResults && !isResearching && (
+          <section className="relative py-20 px-6">
+            <div className="max-w-4xl mx-auto text-center space-y-8">
+              <div className="space-y-4">
+                <h2 className="text-4xl font-bold text-foreground">
+                  Discover Your Next
+                  <span className="bg-gradient-primary bg-clip-text text-transparent"> Big Opportunity</span>
+                </h2>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Leverage AI to identify and analyze potential buyers for your pharmaceutical products. 
+                  Get detailed market intelligence, contact information, and AI-generated outreach strategies.
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+                <div className="p-6 rounded-lg bg-gradient-card border border-border">
+                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-6 h-6 text-primary-foreground" />
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-2">AI-Powered Research</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Advanced algorithms analyze your company profile and identify the most relevant prospects
+                  </p>
+                </div>
+                
+                <div className="p-6 rounded-lg bg-gradient-card border border-border">
+                  <div className="w-12 h-12 bg-gradient-success rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <Users className="w-6 h-6 text-success-foreground" />
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-2">Contact Intelligence</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Get verified contact information and decision-maker profiles for targeted outreach
+                  </p>
+                </div>
+                
+                <div className="p-6 rounded-lg bg-gradient-card border border-border">
+                  <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <TrendingUp className="w-6 h-6 text-accent" />
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-2">Market Insights</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Comprehensive analysis with opportunity scores and strategic recommendations
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Research Input Form */}
         <Card className="bg-gradient-card border-border">
           <CardHeader>
@@ -275,11 +321,21 @@ const BuyerDiscovery = () => {
                 </div>
               </div>
             )}
+            
+            {error && (
+              <div className="bg-red-50 text-red-800 p-3 rounded-md flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 mt-0.5" />
+                <div>
+                  <p className="font-medium">Research failed</p>
+                  <p className="text-sm">{error.message}</p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* Results Section */}
-        {hasResults && (
+        {hasResults && researchResults && (
           <>
             {/* Source Company Overview */}
             <Card className="bg-gradient-card border-border">
@@ -291,17 +347,17 @@ const BuyerDiscovery = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-foreground mb-2">{mockResearchResult.sourceCompany.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-3">{mockResearchResult.sourceCompany.overview}</p>
+                  <h3 className="font-semibold text-foreground mb-2">{researchResults.sourceCompany.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-3">{researchResults.sourceCompany.overview}</p>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <h4 className="font-medium text-foreground mb-1">Business Model</h4>
-                      <p className="text-sm text-muted-foreground">{mockResearchResult.sourceCompany.businessModel}</p>
+                      <p className="text-sm text-muted-foreground">{researchResults.sourceCompany.businessModel}</p>
                     </div>
                     <div>
                       <h4 className="font-medium text-foreground mb-1">Therapeutic Coverage</h4>
-                      <p className="text-sm text-muted-foreground">{mockResearchResult.sourceCompany.therapeuticCoverage}</p>
+                      <p className="text-sm text-muted-foreground">{researchResults.sourceCompany.therapeuticCoverage}</p>
                     </div>
                   </div>
                 </div>
@@ -310,7 +366,7 @@ const BuyerDiscovery = () => {
                 
                 <div>
                   <h4 className="font-medium text-foreground mb-2">Ideal Customer Profile</h4>
-                  <p className="text-sm text-muted-foreground">{mockResearchResult.idealCustomerProfile}</p>
+                  <p className="text-sm text-muted-foreground">{researchResults.idealCustomerProfile}</p>
                 </div>
               </CardContent>
             </Card>
@@ -325,7 +381,7 @@ const BuyerDiscovery = () => {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Targets Found</p>
-                      <p className="text-2xl font-bold text-foreground">{mockResearchResult.discoveredBuyers.length}</p>
+                      <p className="text-2xl font-bold text-foreground">{researchResults.discoveredBuyers.length}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -340,7 +396,7 @@ const BuyerDiscovery = () => {
                     <div>
                       <p className="text-sm text-muted-foreground">High Priority</p>
                       <p className="text-2xl font-bold text-foreground">
-                        {mockResearchResult.discoveredBuyers.filter(b => b.status === "High Priority").length}
+                        {researchResults.discoveredBuyers.filter(b => b.status === "High Priority").length}
                       </p>
                     </div>
                   </div>
@@ -356,7 +412,7 @@ const BuyerDiscovery = () => {
                     <div>
                       <p className="text-sm text-muted-foreground">Avg. Score</p>
                       <p className="text-2xl font-bold text-foreground">
-                        {Math.round(mockResearchResult.discoveredBuyers.reduce((acc, b) => acc + b.opportunityScore, 0) / mockResearchResult.discoveredBuyers.length)}
+                        {Math.round(researchResults.discoveredBuyers.reduce((acc, b) => acc + b.opportunityScore, 0) / researchResults.discoveredBuyers.length)}
                       </p>
                     </div>
                   </div>
@@ -372,7 +428,7 @@ const BuyerDiscovery = () => {
                     <div>
                       <p className="text-sm text-muted-foreground">Regions</p>
                       <p className="text-2xl font-bold text-foreground">
-                        {new Set(mockResearchResult.discoveredBuyers.map(b => b.country)).size}
+                        {new Set(researchResults.discoveredBuyers.map(b => b.country)).size}
                       </p>
                     </div>
                   </div>
@@ -399,7 +455,7 @@ const BuyerDiscovery = () => {
                   {/* Cards View */}
                   <TabsContent value="cards" className="space-y-4 mt-0">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {mockResearchResult.discoveredBuyers.map((buyer) => (
+                      {researchResults.discoveredBuyers.map((buyer) => (
                         <Card key={buyer.id} className="border-border hover:shadow-md transition-shadow">
                           <CardHeader className="pb-3">
                             <div className="flex items-start justify-between">
@@ -422,9 +478,9 @@ const BuyerDiscovery = () => {
                             <p className="text-xs text-muted-foreground">{buyer.targetSegment}</p>
                             <div className="space-y-1">
                               <h4 className="text-xs font-medium text-foreground">Key Contacts:</h4>
-                              {buyer.keyContacts.slice(0, 2).map((contact, idx) => (
+                              {buyer.keyContacts && buyer.keyContacts.slice(0, 2).map((contact, idx) => (
                                 <p key={idx} className="text-xs text-muted-foreground">
-                                  {contact.name} - {contact.role}
+                                  {typeof contact === 'string' ? contact : (contact.name || contact) + (contact.role ? ` - ${contact.role}` : '')}
                                 </p>
                               ))}
                             </div>
@@ -434,7 +490,7 @@ const BuyerDiscovery = () => {
                                 variant="outline" 
                                 className="flex-1 text-xs"
                                 onClick={() => {
-                                  setSelectedBuyer(buyer.id);
+                                  setSelectedBuyer(typeof buyer.id === 'string' ? parseInt(buyer.id) : buyer.id);
                                   setActiveUIOption("detailed");
                                 }}
                               >
@@ -470,7 +526,7 @@ const BuyerDiscovery = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {mockResearchResult.discoveredBuyers.map((buyer) => (
+                        {researchResults.discoveredBuyers.map((buyer) => (
                           <TableRow key={buyer.id}>
                             <TableCell>
                               <div>
@@ -503,7 +559,7 @@ const BuyerDiscovery = () => {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => {
-                                    setSelectedBuyer(buyer.id);
+                                    setSelectedBuyer(typeof buyer.id === 'string' ? parseInt(buyer.id) : buyer.id);
                                     setActiveUIOption("detailed");
                                   }}
                                 >
@@ -525,8 +581,8 @@ const BuyerDiscovery = () => {
 
                   {/* Detailed View */}
                   <TabsContent value="detailed" className="space-y-6 mt-0">
-                    {mockResearchResult.discoveredBuyers
-                      .filter(buyer => selectedBuyer === null || buyer.id === selectedBuyer)
+                    {researchResults.discoveredBuyers
+                      .filter(buyer => selectedBuyer === null || (typeof buyer.id === 'string' ? parseInt(buyer.id) : buyer.id) === selectedBuyer)
                       .map((buyer) => (
                       <Card key={buyer.id} className="border-border">
                         <CardHeader>
@@ -536,7 +592,7 @@ const BuyerDiscovery = () => {
                               <div className="flex items-center gap-4 mt-1">
                                 <div className="flex items-center gap-1">
                                   <MapPin className="w-4 h-4 text-muted-foreground" />
-                                  <span className="text-sm text-muted-foreground">{buyer.country} • {buyer.region}</span>
+                                  <span className="text-sm text-muted-foreground">{buyer.country} {buyer.region ? `• ${buyer.region}` : ''}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                   <Globe className="w-4 h-4 text-muted-foreground" />
@@ -566,25 +622,35 @@ const BuyerDiscovery = () => {
                             <p className="text-sm text-muted-foreground">{buyer.targetSegment}</p>
                           </div>
 
-                          <div>
-                            <h4 className="font-medium text-foreground mb-2">Key Contacts</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                              {buyer.keyContacts.map((contact, idx) => (
-                                <div key={idx} className="border border-border rounded-lg p-3">
-                                  <div className="font-medium text-sm">{contact.name}</div>
-                                  <div className="text-xs text-muted-foreground">{contact.role}</div>
-                                  {contact.email && (
-                                    <div className="text-xs text-primary mt-1">{contact.email}</div>
-                                  )}
-                                </div>
-                              ))}
+                          {buyer.keyContacts && buyer.keyContacts.length > 0 && (
+                            <div>
+                              <h4 className="font-medium text-foreground mb-2">Key Contacts</h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                {buyer.keyContacts.map((contact, idx) => (
+                                  <div key={idx} className="border border-border rounded-lg p-3">
+                                    {typeof contact === 'string' ? (
+                                      <div className="font-medium text-sm">{contact}</div>
+                                    ) : (
+                                      <>
+                                        <div className="font-medium text-sm">{contact.name}</div>
+                                        <div className="text-xs text-muted-foreground">{contact.role}</div>
+                                        {contact.email && (
+                                          <div className="text-xs text-primary mt-1">{contact.email}</div>
+                                        )}
+                                      </>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                          </div>
+                          )}
 
-                          <div>
-                            <h4 className="font-medium text-foreground mb-2">Recommendation Rationale</h4>
-                            <p className="text-sm text-muted-foreground leading-relaxed">{buyer.reasonForRecommendation}</p>
-                          </div>
+                          {buyer.reasonForRecommendation && (
+                            <div>
+                              <h4 className="font-medium text-foreground mb-2">Recommendation Rationale</h4>
+                              <p className="text-sm text-muted-foreground leading-relaxed">{buyer.reasonForRecommendation}</p>
+                            </div>
+                          )}
 
                           <div className="flex gap-3 pt-2">
                             <Button className="gap-2">

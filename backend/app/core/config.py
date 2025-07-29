@@ -78,6 +78,9 @@ class Settings(BaseSettings):
     # Perplexity API
     PERPLEXITY_API_KEY: Optional[str] = os.getenv("PERPLEXITY_API_KEY")
     
+    # Mock data control
+    USE_MOCK_RESPONSES: bool = os.getenv("USE_MOCK_RESPONSES", "false").lower() == "true"
+    
     # Redis Cache (optional)
     REDIS_HOST: Optional[str] = os.getenv("REDIS_HOST")
     REDIS_PORT: int = int(os.getenv("REDIS_PORT", "6379"))

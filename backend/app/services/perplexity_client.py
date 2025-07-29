@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions"  # Updated endpoint based on documentation
 PERPLEXITY_API_KEY = settings.PERPLEXITY_API_KEY
 
-# Flag to use mock responses for testing
-USE_MOCK_RESPONSES = True
+# Flag to use mock responses for testing - use the setting from config
+USE_MOCK_RESPONSES = settings.USE_MOCK_RESPONSES
 
 def run_deep_research(prompt: str, max_tokens: Optional[int] = None) -> Dict[str, Any]:
     """
@@ -37,7 +37,7 @@ def run_deep_research(prompt: str, max_tokens: Optional[int] = None) -> Dict[str
     Raises:
         Exception: If the API request fails
     """
-    if not PERPLEXITY_API_KEY:
+    if not PERPLEXITY_API_KEY and not USE_MOCK_RESPONSES:
         logger.error("Perplexity API key not found in environment variables")
         raise Exception("Perplexity API key not configured. Please set the PERPLEXITY_API_KEY environment variable.")
     
@@ -108,7 +108,7 @@ def _get_mock_response(prompt: str) -> Dict[str, Any]:
     # Generate a company name from the website
     company_name = company_website.split("//")[-1].split(".")[0].capitalize()
     
-    # Create a mock response
+    # Create a mock response with a well-structured markdown format
     mock_response = {
         "text": f"""
 # Source Company Overview

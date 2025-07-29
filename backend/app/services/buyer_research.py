@@ -87,58 +87,98 @@ def parse_markdown_table(table_text: str) -> List[Dict[str, str]]:
     
     return data_rows
 
-def parse_research_results(research_response: Dict[str, Any]) -> List[Dict[str, Any]]:
+def parse_research_results(research_response: Dict[str, Any], company_name: str, company_website: str) -> Dict[str, Any]:
     """
-    Parse the markdown response from Perplexity into structured prospect data.
+    Parse the markdown response from Perplexity into structured research data.
     
     Args:
         research_response: The response from the Perplexity API
+        company_name: Name of the company
+        company_website: Website URL of the company
         
     Returns:
-        List of prospect dictionaries
+        Dictionary with source company info, ideal customer profile, and discovered buyers
     """
     # Extract the text content from the response
     if "text" not in research_response:
         logger.error("Unexpected response format from Perplexity API")
-        return []
+        return {
+            "sourceCompany": {
+                "name": company_name,
+                "url": company_website,
+                "overview": "Could not retrieve company overview.",
+                "businessModel": "Could not retrieve business model.",
+                "therapeuticCoverage": "Could not retrieve therapeutic coverage."
+            },
+            "idealCustomerProfile": "Could not retrieve ideal customer profile.",
+            "discoveredBuyers": []
+        }
     
     markdown_text = research_response["text"]
     
-    # Extract the recommended targets table section
+    # Extract sections from the markdown text
+    source_company_overview = extract_section_from_markdown(markdown_text, "Source Company Overview") or "No company overview available."
+    product_portfolio = extract_section_from_markdown(markdown_text, "Product Portfolio Summary") or "No product portfolio available."
+    ideal_customer_profile = extract_section_from_markdown(markdown_text, "Ideal Customer Profile") or "No ideal customer profile available."
     table_section = extract_section_from_markdown(markdown_text, "Recommended Target Companies Table")
-    if not table_section:
-        logger.warning("Could not find recommended targets table in research results")
-        return []
     
     # Parse the markdown table
-    table_data = parse_markdown_table(table_section)
+    table_data = parse_markdown_table(table_section) if table_section else []
     
     # Convert table data to prospect format
     prospects = []
     for i, row in enumerate(table_data):
-        # Map table columns to prospect fields
+        # Map table columns to prospect fields with exact frontend-expected field names
         prospect = {
             "id": f"research-{i+1}",
             "name": row.get("Company Name", "Unknown Company"),
-            "location": row.get("Country/Region", "Unknown Location"),
-            "segment": row.get("Target Segment", "Unknown Segment"),
+            "country": row.get("Country/Region", "Unknown Location"),  # Changed from "location" to "country"
+            "region": row.get("Country/Region", "").split("/")[1].strip() if "/" in row.get("Country/Region", "") else "",
+            "targetSegment": row.get("Target Segment", "Unknown Segment"),  # Changed from "segment" to "targetSegment"
             "website": row.get("Website", ""),
-            "keyContacts": [row.get("Key Contacts", "")] if row.get("Key Contacts") else [],
+            "keyContacts": [],
             "reasonForRecommendation": row.get("Reason for Recommendation", ""),
             "opportunityScore": 75,  # Default score for research-based prospects
-            "status": "Research",
-            "source": "perplexity_research"
+            "status": "Research"
         }
+        
+        # Process key contacts - handle both string and structured formats
+        key_contacts_str = row.get("Key Contacts", "")
+        if key_contacts_str:
+            # Simple parsing for "Name, Role" format
+            contacts = []
+            for contact_str in key_contacts_str.split(";"):
+                contact_str = contact_str.strip()
+                if "," in contact_str:
+                    name, role = contact_str.split(",", 1)
+                    contacts.append({"name": name.strip(), "role": role.strip()})
+                else:
+                    contacts.append({"name": contact_str, "role": ""})
+            prospect["keyContacts"] = contacts
+        
         prospects.append(prospect)
     
-    return prospects
+    # Construct the full research results
+    research_results = {
+        "sourceCompany": {
+            "name": company_name,
+            "url": company_website,
+            "overview": source_company_overview,
+            "businessModel": product_portfolio,
+            "therapeuticCoverage": product_portfolio
+        },
+        "idealCustomerProfile": ideal_customer_profile,
+        "discoveredBuyers": prospects
+    }
+    
+    return research_results
 
 def research_potential_buyers(
     db: Session, 
     company_name: str,
     company_website: str,
     products: List[str]
-) -> List[Dict[str, Any]]:
+) -> Dict[str, Any]:
     """
     Research potential buyers for a company using Perplexity Deep Research.
     
@@ -149,7 +189,7 @@ def research_potential_buyers(
         products: List of product names
         
     Returns:
-        List of potential buyer prospects with details
+        Dictionary with source company info, ideal customer profile, and discovered buyers
     """
     logger.info(f"Researching potential buyers for {company_name} ({company_website})")
     
@@ -161,10 +201,10 @@ def research_potential_buyers(
         research_response = run_deep_research_with_cache(formatted_prompt)
         
         # Parse the results into structured data
-        prospects = parse_research_results(research_response)
+        research_results = parse_research_results(research_response, company_name, company_website)
         
-        logger.info(f"Found {len(prospects)} potential buyers through research")
-        return prospects
+        logger.info(f"Found {len(research_results['discoveredBuyers'])} potential buyers through research")
+        return research_results
         
     except Exception as e:
         logger.error(f"Error researching potential buyers: {str(e)}")
